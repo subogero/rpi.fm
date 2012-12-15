@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+use LWP::Simple;
+use HTML::Parse;
+my @stations;
+my $page = get 'http://www.internet-radio.com/stations/drum%20and%20bass/';
+my $doc = parse_html $page;
+my $i = 0;
+print "STATIONS\n";
+foreach (@{$doc->extract_links()}) {
+    next unless $_->[0] =~ /^.+mount=(.+pls)&.*&website=(.+)$/;
+    my $station = $2;
+    my $pls = get $1;
+    my @plslines = split '\n', $pls;
+    my $plsfile = pop @plslines;
+    my @tokens = split /=/, $plsfile;
+    my $file = $tokens[1];
+    $stations[$i] = $file;
+    print "$i - $station\n";
+    $i++;
+}
+print "> ";
+my $n = <>;
+die if $n < 0 || $n >= $i;
+if (fork) {
+    wait;
+} else {
+    print "/usr/bin/omxplayer -o hdmi $stations[$n]\n";
+    exec '/usr/bin/omxplayer', '-o', 'hdmi', $stations[$n];
+}
