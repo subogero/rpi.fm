@@ -9,12 +9,8 @@ print "STATIONS\n";
 foreach (@{$doc->extract_links()}) {
     next unless $_->[0] =~ /^.+mount=(.+pls)&.*&website=(.+)$/;
     my $station = $2;
-    my $pls = get $1;
-    my @plslines = split '\n', $pls;
-    my $plsfile = pop @plslines;
-    my @tokens = split /=/, $plsfile;
-    my $file = $tokens[1];
-    $stations[$i] = $file;
+    my $listen = $1;
+    $stations[$i] = $listen;
     print "$i - $station\n";
     $i++;
 }
@@ -24,6 +20,11 @@ die if $n < 0 || $n >= $i;
 if (fork) {
     wait;
 } else {
-    print "/usr/bin/omxplayer -o hdmi $stations[$n]\n";
-    exec '/usr/bin/omxplayer', '-o', 'hdmi', $stations[$n];
+    my $pls = get $stations[$n];
+    my @plslines = split '\n', $pls;
+    my $plsfile = pop @plslines;
+    my @tokens = split /=/, $plsfile;
+    my $file = $tokens[1];
+    print "/usr/bin/omxplayer -o hdmi $file\n";
+    exec '/usr/bin/omxplayer', '-o', 'hdmi', $file;
 }
