@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use LWP::Simple;
 use HTML::Parse;
+print "Welcome to RPi.fm\nType h for help.\n";
 my @stations;
 my $page = get 'http://www.internet-radio.com/stations/drum%20and%20bass/';
 my $doc = parse_html $page;
@@ -25,6 +26,7 @@ if (fork) {
     my $plsfile = pop @plslines;
     my @tokens = split /=/, $plsfile;
     my $file = $tokens[1];
-    print "/usr/bin/omxplayer -o hdmi $file\n";
+    print "omxplayer -o hdmi $file\n";
+    open STDOUT, ">/dev/null";
     exec '/usr/bin/omxplayer', '-o', 'hdmi', $file;
 }
