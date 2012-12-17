@@ -22,11 +22,15 @@ our @stations;
 our @genres;
 our $title;
 our $station_now;
+
+player;
 print "rpi.fm> ";
 while (<>) {
     (my $cmd = $_) =~ s/\r|\n//g;
     if      ($cmd eq 'q') {
-        player 'q';
+        player $cmd;
+        exit 0;
+    } elsif ($cmd eq 'd') {
         exit 0;
     } elsif ($cmd eq '?') {
         help;
@@ -42,8 +46,7 @@ while (<>) {
 
 sub getstation {
     my $page = get "http://www.internet-radio.com/$_[0]";
-    $page =~ /<h2 style=.+>(.+)<\/h2>/;
-    #$page =~ /<h2 style=\"margin-bottom: 10px;\">(.+)<\/h2>/;
+    $page =~ /<h2 style=.+>\s*(.+)<\/h2>/;
     $title = $1;
     my $doc = parse_html $page;
     my $i = 0;
@@ -65,20 +68,54 @@ sub getstation {
 }
 
 sub player {
-    our $player_pid;
+    # Load station and output from nowfile
     our $output;
-    $output = $_[0] eq 'j' ? '-olocal'
-            : $_[0] eq 'h' ? '-ohdmi'
-            :                $output;
+    our $nowfile = "$ENV{HOME}/.rpi.fm.now";
+    if (!$station_now && open NOW, $nowfile) {
+        ($station_now = <NOW>) =~ s/\n//;
+        ($output      = <NOW>) =~ s/\n//;
+        print "Loaded $station_now $output\n";
+        close NOW;
+    }
+    # Load player PID from pidfile
+    our $pidfile = '/run/lock/rpi.fm.pid';
+    our $player_pid;
+    if (!$player_pid && -f $pidfile) {
+        open PID, $pidfile or die $!;
+        $player_pid = <PID>;
+        close PID;
+        unlink $pidfile;
+        print "Connected to player $player_pid\n";
+        return;
+    }
+    # Kill actual player upon other command
     if ($player_pid) {
         kill -9, $player_pid;
         wait;
         $player_pid = undef;
-        return if $_[0] eq 'p';
+        unlink $nowfile if $_[0] ne 'q';
+        unlink $pidfile;
+        return if $_[0] =~ /[pq]/;
     }
-    return if $_[0] eq 'q';
+    # Set output
+    $output = $_[0] eq 'j' ? '-olocal'
+            : $_[0] eq 'h' ? '-ohdmi'
+            :                $output;
+    # Save station and output into nowfile
+    if (open NOW, ">$nowfile") {
+        print "Save $station_now $output\n";
+        print NOW "$station_now\n";
+        print NOW "$output\n";
+        close NOW;
+    }
+    # Parent saves child PID, child execs omxplayer
     $player_pid = fork;
-    unless ($player_pid) {
+    if ($player_pid) {
+        open PID, ">$pidfile" or die $!;
+        print PID $player_pid;
+        close PID;
+        print "Saved $player_pid\n";
+    } else {
         setpgrp;
         my $pls = get $station_now;
         my @plslines = split '\n', $pls;
