@@ -63,7 +63,7 @@ sub getstation {
         my $station = $2;
         my $listen = $1;
         $stations[$i] = $listen;
-        print "$i - $station\n";
+        printf "%2d %s\n", $i, $station;
         $i++;
     }
     my $n;
