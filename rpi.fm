@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use LWP::Simple;
 use HTML::Parse;
-sub getstation; sub getgenre; sub player;
+sub getstation; sub getgenre; sub loadgenres; sub player;
 sub help {
     print <<EOF;
 Available commands:
@@ -24,7 +24,7 @@ Welcome to rpi.fm
 EOF
 
 our @stations;
-our @genres;
+our %genres;
 our $title;
 our $station_now;
 
@@ -50,7 +50,8 @@ while (<>) {
 }
 
 sub getstation {
-    my $page = get "http://www.internet-radio.com/$_[0]";
+    my $page = get "http://www.internet-radio.com$_[0]";
+    loadgenres $page unless %genres;
     $page =~ /<h2 style=.+>\s*(.+)<\/h2>/;
     $title = $1;
     my $doc = parse_html $page;
@@ -66,10 +67,34 @@ sub getstation {
     }
     my $n;
     while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
-        print "rpi.fm> ";
+        print "rpi.fm Choose station> ";
         $n = <>;
     }
     $station_now = $stations[$n];
+}
+
+sub getgenre {
+    loadgenres unless %genres;
+    my $i = 0;
+    foreach (sort keys %genres) {
+        printf "%3d %-15.15s ", $i++, $_;
+        print "\n" if $i % 4 == 0;
+    }
+    print "\n" if $i % 4 != 0;
+    my $n;
+    while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
+        print "rpi.fm Choose genre> ";
+        $n = <>;
+    }
+    my $key = (sort keys %genres)[$n];
+    getstation $genres{$key};
+}
+
+sub loadgenres {
+    my @lines = split /\n/, $_[0] || get "http://www.internet-radio.com";
+    foreach (@lines) {
+        $genres{$2} = $1 if /<option value="(.+)">(.+)<\/option>/;
+    }
 }
 
 sub player {
