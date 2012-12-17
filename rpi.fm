@@ -114,12 +114,11 @@ sub player {
         open PID, $pidfile or die $!;
         $player_pid = <PID>;
         close PID;
-        unlink $pidfile;
         return;
     }
     # Kill actual player upon other command
     if ($player_pid) {
-        kill -9, $player_pid;
+        kill TERM => -$player_pid;
         wait;
         $player_pid = undef;
         unlink $nowfile if $_[0] ne 'q';
