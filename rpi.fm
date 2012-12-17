@@ -68,6 +68,7 @@ sub getstation {
     }
     my $n;
     while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
+        return if $i == 0;
         print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
         $n = <>;
     }
