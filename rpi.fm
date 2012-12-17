@@ -1,32 +1,92 @@
 #!/usr/bin/perl
 use LWP::Simple;
 use HTML::Parse;
-print "Welcome to RPi.fm\nType h for help.\n";
-my @stations;
-my $page = get 'http://www.internet-radio.com/stations/drum%20and%20bass/';
-my $doc = parse_html $page;
-my $i = 0;
-print "STATIONS\n";
-foreach (@{$doc->extract_links()}) {
-    next unless $_->[0] =~ /^.+mount=(.+pls)&.*&website=(.+)$/;
-    my $station = $2;
-    my $listen = $1;
-    $stations[$i] = $listen;
-    print "$i - $station\n";
-    $i++;
+print <<EOF;
+Welcome to rpi.fm
+=================
+EOF
+
+sub getstation; sub getgenre; sub player;
+sub help {
+    print <<EOF;
+Available commands:
+q	Quit				f	Featured stations list
+d	Demonize player	and quit	g	choose Genre
+?	help				l	List actual stations
+h	play on HDMI output		<n>	choose item <n> from list
+j	play on stereo Jack output	p	Play/Pause
+EOF
 }
-print "> ";
-my $n = <>;
-die if $n < 0 || $n >= $i;
-if (fork) {
-    wait;
-} else {
-    my $pls = get $stations[$n];
-    my @plslines = split '\n', $pls;
-    my $plsfile = pop @plslines;
-    my @tokens = split /=/, $plsfile;
-    my $file = $tokens[1];
-    print "omxplayer -o hdmi $file\n";
-    open STDOUT, ">/dev/null";
-    exec '/usr/bin/omxplayer', '-o', 'hdmi', $file;
+
+our @stations;
+our @genres;
+our $title;
+our $station_now;
+print "rpi.fm> ";
+while (<>) {
+    (my $cmd = $_) =~ s/\r|\n//g;
+    if      ($cmd eq 'q') {
+        player 'q';
+        exit 0;
+    } elsif ($cmd eq '?') {
+        help;
+    } elsif ($cmd eq 'f') {
+        getstation;
+    } elsif ($cmd eq 'g') {
+        getgenre;
+    } elsif ($cmd =~ /[hjp]/) {
+        player $cmd;
+    }
+    print "rpi.fm> ";
+}
+
+sub getstation {
+    my $page = get "http://www.internet-radio.com/$_[0]";
+    $page =~ /<h2 style=.+>(.+)<\/h2>/;
+    #$page =~ /<h2 style=\"margin-bottom: 10px;\">(.+)<\/h2>/;
+    $title = $1;
+    my $doc = parse_html $page;
+    my $i = 0;
+    print "$title\n";
+    foreach (@{$doc->extract_links()}) {
+        next unless $_->[0] =~ /^.+mount=(.+pls)&.*&website=(.+)$/;
+        my $station = $2;
+        my $listen = $1;
+        $stations[$i] = $listen;
+        print "$i - $station\n";
+        $i++;
+    }
+    my $n;
+    while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
+        print "rpi.fm> ";
+        $n = <>;
+    }
+    $station_now = $stations[$n];
+}
+
+sub player {
+    our $player_pid;
+    our $output;
+    $output = $_[0] eq 'j' ? '-olocal'
+            : $_[0] eq 'h' ? '-ohdmi'
+            :                $output;
+    if ($player_pid) {
+        kill -9, $player_pid;
+        wait;
+        $player_pid = undef;
+        return if $_[0] eq 'p';
+    }
+    return if $_[0] eq 'q';
+    $player_pid = fork;
+    unless ($player_pid) {
+        setpgrp;
+        my $pls = get $station_now;
+        my @plslines = split '\n', $pls;
+        my $plsfile = pop @plslines;
+        my @tokens = split /=/, $plsfile;
+        my $file = $tokens[1];
+        open STDOUT, ">/dev/null";
+        close STDIN;
+        exec '/usr/bin/omxplayer', $output, $file;
+    }
 }
