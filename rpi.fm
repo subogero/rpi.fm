@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use LWP::Simple;
 use HTML::Parse;
+use Term::ANSIColor qw(:constants);
 sub getstation; sub getgenre; sub loadgenres; sub player;
 sub help {
     print <<EOF;
@@ -29,7 +30,7 @@ our $title;
 our $station_now;
 
 player;
-print "rpi.fm> ";
+print BRIGHT_RED, "rpi.fm> ", RESET;
 while (<>) {
     (my $cmd = $_) =~ s/\r|\n//g;
     if      ($cmd eq 'q') {
@@ -46,7 +47,7 @@ while (<>) {
     } elsif ($cmd =~ /[hjp]/) {
         player $cmd;
     }
-    print "rpi.fm> ";
+    print BRIGHT_RED, "rpi.fm> ", RESET;
 }
 
 sub getstation {
@@ -67,7 +68,7 @@ sub getstation {
     }
     my $n;
     while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
-        print "rpi.fm Choose station> ";
+        print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
         $n = <>;
     }
     $station_now = $stations[$n];
@@ -83,7 +84,7 @@ sub getgenre {
     print "\n" if $i % 4 != 0;
     my $n;
     while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
-        print "rpi.fm Choose genre> ";
+        print BRIGHT_RED, "rpi.fm Choose genre> ", RESET;
         $n = <>;
     }
     my $key = (sort keys %genres)[$n];
