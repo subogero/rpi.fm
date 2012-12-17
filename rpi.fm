@@ -59,11 +59,10 @@ sub getstation {
     my $i = 0;
     print "$title\n";
     foreach (@{$doc->extract_links()}) {
-        next unless $_->[0] =~ /^.+mount=(.+pls)&.*&website=(.+)$/;
-        my $station = $2;
-        my $listen = $1;
+        next unless $_->[0] =~ /^.+mount=(.+pls)&title=(.+)&website=(.+)$/;
+        my ($listen, $title, $station) = ($1, $2, $3);
         $stations[$i] = $listen;
-        printf "%2d %s\n", $i, $station;
+        printf "%2d %-31.31s %-45.45s\n", $i, $station, $title;
         $i++;
     }
     my $n;
