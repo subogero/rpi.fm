@@ -74,7 +74,6 @@ sub player {
     if (!$station_now && open NOW, $nowfile) {
         ($station_now = <NOW>) =~ s/\n//;
         ($output      = <NOW>) =~ s/\n//;
-        print "Loaded $station_now $output\n";
         close NOW;
     }
     # Load player PID from pidfile
@@ -85,7 +84,6 @@ sub player {
         $player_pid = <PID>;
         close PID;
         unlink $pidfile;
-        print "Connected to player $player_pid\n";
         return;
     }
     # Kill actual player upon other command
@@ -103,7 +101,6 @@ sub player {
             :                $output;
     # Save station and output into nowfile
     if (open NOW, ">$nowfile") {
-        print "Save $station_now $output\n";
         print NOW "$station_now\n";
         print NOW "$output\n";
         close NOW;
@@ -114,7 +111,6 @@ sub player {
         open PID, ">$pidfile" or die $!;
         print PID $player_pid;
         close PID;
-        print "Saved $player_pid\n";
     } else {
         setpgrp;
         my $pls = get $station_now;
