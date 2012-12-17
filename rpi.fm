@@ -1,11 +1,6 @@
 #!/usr/bin/perl
 use LWP::Simple;
 use HTML::Parse;
-print <<EOF;
-Welcome to rpi.fm
-=================
-EOF
-
 sub getstation; sub getgenre; sub player;
 sub help {
     print <<EOF;
@@ -17,6 +12,16 @@ h	play on HDMI output		<n>	choose item <n> from list
 j	play on stereo Jack output	p	Play/Pause
 EOF
 }
+
+if ($ARGV[0] =~ /-h/) {
+    help;
+    exit 0;
+}
+
+print <<EOF;
+Welcome to rpi.fm
+=================
+EOF
 
 our @stations;
 our @genres;
