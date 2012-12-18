@@ -1,8 +1,8 @@
 rpi.fm - Internet Radio Player for the Raspberry Pi
 ===================================================
 
-Command-line internet radio player using http://www.internet-radio.com's
-database and omxplayer for actual playback.
+Command-line internet radio player using the http://www.internet-radio.com
+website and omxplayer for actual playback.
 
 Main features include chosing station by genre, automatic resume of playback
 after restart, and demonized playback in the background after quitting.
