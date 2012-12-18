@@ -1,19 +1,26 @@
 rpi.fm - Internet Radio Player for the Raspberry Pi
 ===================================================
 
-rpi.fm is a command-line internet radio player using the database of
-erm... http://www.internet-radio.com and omxplayer for actual playback.
+Command-line internet radio player using http://www.internet-radio.com's
+database and omxplayer for actual playback.
 
 Main features include chosing station by genre, automatic resume of playback
 after restart, and demonized playback in the background after quitting.
 
 rpi.fm was written in Perl and uses the following modules:
 LWP::Simple, HTML::Parse and Term::ANSIColor for that fancy prompt.
+Installation (the latter 2 are part of standard Raspbian Wheezy):
+apt-get install libwww-perl libhtml-tree-perl perl-modules
 
-Available commands:
--------------------
+Available commands
+------------------
 q	Quit				f	Featured stations list
 d	Demonize player	and quit	g	choose Genre
 ?	help				l	List actual stations
 h	play on HDMI output		<n>	choose item <n> from list
 j	play on stereo Jack output	p	Play/Pause
+
+Files
+-----
+/run/lock/rpi.fm.pid	process ID of the running omxplayer
+~/.rpi.fm.now		URL and the output device for playback
