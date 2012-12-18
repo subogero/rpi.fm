@@ -140,12 +140,8 @@ sub player {
         print PID $player_pid;
         close PID;
     } else {
+        my $file = (split /=|\n/, get($station_now))[-1];
         setpgrp;
-        my $pls = get $station_now;
-        my @plslines = split '\n', $pls;
-        my $plsfile = pop @plslines;
-        my @tokens = split /=/, $plsfile;
-        my $file = $tokens[1];
         open STDOUT, ">/dev/null";
         close STDIN;
         exec '/usr/bin/omxplayer', $output, $file;
