@@ -21,8 +21,8 @@ if ($ARGV[0] =~ /-h/) {
 }
 
 print <<EOF;
-Welcome to rpi.fm
-=================
+Welcome to rpi.fm - Type ? for help
+===================================
 EOF
 
 our @stations;
