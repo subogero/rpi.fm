@@ -27,6 +27,7 @@ EOF
 
 our @stations;
 our %genres;
+our $genre;
 our $title;
 our $station_now;
 
@@ -42,6 +43,9 @@ while (<>) {
     } elsif ($cmd eq '?') {
         help;
     } elsif ($cmd eq 'f') {
+        $genre = '';
+        getstation;
+    } elsif ($cmd eq 'l') {
         getstation;
     } elsif ($cmd eq 'g') {
         getgenre;
@@ -52,7 +56,7 @@ while (<>) {
 }
 
 sub getstation {
-    my $page = get "http://www.internet-radio.com$_[0]";
+    my $page = get "http://www.internet-radio.com$genre";
     loadgenres $page unless %genres;
     $page =~ /<h2 style=.+>\s*(.+)<\/h2>/;
     $title = $1;
@@ -89,7 +93,8 @@ sub getgenre {
         $n = <>;
     }
     my $key = (sort keys %genres)[$n];
-    getstation $genres{$key};
+    $genre =  $genres{$key};
+    getstation;
 }
 
 sub loadgenres {
