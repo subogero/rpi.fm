@@ -123,13 +123,11 @@ sub player {
         $player_pid = undef;
         unlink $nowfile if $_[0] ne 'q';
         unlink $pidfile;
-        return if $_[0] =~ /[pq]/;
+        return if $_[0] eq 'p';
     }
-    # Set output
-    $output = $_[0] eq 'j' ? '-olocal'
-            : $_[0] eq 'h' ? '-ohdmi'
-            :                $output;
+    return if $_[0] eq 'q';
     # Save station and output into nowfile
+    $output = $_[0] eq 'j' ? '-olocal' : $_[0] eq 'h' ? '-ohdmi' : $output;
     if (open NOW, ">$nowfile") {
         print NOW "$station_now\n";
         print NOW "$output\n";
