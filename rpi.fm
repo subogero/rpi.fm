@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# Copyright: SZABO Gergely <szg@subogero.com>, WTFPL 2.0
 use LWP::Simple;
 use HTML::Parse;
 use Term::ANSIColor qw(:constants);
