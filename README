@@ -7,10 +7,15 @@ website and omxplayer for actual playback.
 Main features include chosing station by genre, automatic resume of playback
 after restart, and demonized playback in the background after quitting.
 
+Installation
+------------
 rpi.fm was written in Perl and uses the following modules:
-LWP::Simple, HTML::Parse and Term::ANSIColor for that fancy prompt.
-Installation (the latter 2 are part of standard Raspbian Wheezy):
-apt-get install libwww-perl libhtml-tree-perl perl-modules
+LWP::Simple, HTML::Parse and Term::ANSIColor for that fancy prompt
+(the latter 2 are part of standard Raspbian Wheezy).
+
+apt-get install libwww-perl # as root
+cd rpi.fm
+make install # as root
 
 Available commands
 ------------------
