@@ -3,15 +3,15 @@
 use LWP::Simple;
 use HTML::Parse;
 use Term::ANSIColor qw(:constants);
-sub getstation; sub getgenre; sub loadgenres; sub player;
+sub getstation; sub getgenre; sub loadgenres; sub player; sub status;
 sub help {
     print <<EOF;
 Available commands:
 q	Quit				f	Featured stations list
 d	Demonize player	and quit	g	choose Genre
 ?	help				l	List actual stations
-h	play on HDMI output		<n>	choose item <n> from list
-j	play on stereo Jack output	p	Play/Pause
+h	play on HDMI output		p	Play/Pause
+j	play on stereo Jack output	s	Show what's playing
 EOF
 }
 
@@ -30,6 +30,9 @@ our %genres;
 our $genre;
 our $title;
 our $station_now;
+our $output;
+our $nowfile = "$ENV{HOME}/.rpi.fm.now";
+our $pidfile = '/run/lock/rpi.fm.pid';
 
 player;
 print BRIGHT_RED, "rpi.fm> ", RESET;
@@ -51,6 +54,8 @@ while (<>) {
         getgenre;
     } elsif ($cmd =~ /[hjp]/) {
         player $cmd;
+    } elsif ($cmd eq 's') {
+        status;
     }
     print BRIGHT_RED, "rpi.fm> ", RESET;
 }
@@ -106,15 +111,12 @@ sub loadgenres {
 
 sub player {
     # Load station and output from nowfile
-    our $output;
-    our $nowfile = "$ENV{HOME}/.rpi.fm.now";
     if (!$station_now && open NOW, $nowfile) {
         ($station_now = <NOW>) =~ s/\n//;
         ($output      = <NOW>) =~ s/\n//;
         close NOW;
     }
     # Load player PID from pidfile
-    our $pidfile = '/run/lock/rpi.fm.pid';
     our $player_pid;
     if (!$player_pid && -f $pidfile) {
         open PID, $pidfile or die $!;
@@ -125,13 +127,12 @@ sub player {
     # Kill actual player upon other command
     if ($player_pid) {
         kill TERM => -$player_pid;
-        wait;
         $player_pid = undef;
         unlink $nowfile if $_[0] ne 'q';
         unlink $pidfile;
         return if $_[0] eq 'p';
     }
-    return if $_[0] eq 'q';
+    return if $_[0] eq 'q' || !$station_now;
     # Save station and output into nowfile
     $output = $_[0] eq 'j' ? '-olocal' : $_[0] eq 'h' ? '-ohdmi' : $output;
     if (open NOW, ">$nowfile") {
@@ -151,5 +152,18 @@ sub player {
         open STDOUT, ">/dev/null";
         close STDIN;
         exec '/usr/bin/omxplayer', $output, $file;
+    }
+}
+
+sub status {
+    (my $out = $output) =~ s/-o//;
+    if (!$station_now && ! -f $pidfile) {
+        print "Stopped\n";
+    } elsif (!$station_now && -f $pidfile) {
+        print "Another user is listening to rpi.fm\n";
+    } elsif ($station_now && ! -f $pidfile) {
+        print "Paused $station_now on $out\n";
+    } elsif ($station_now && -f $pidfile) {
+        print "Playing $station_now on $out\n";
     }
 }
