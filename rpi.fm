@@ -62,30 +62,53 @@ while (<>) {
 }
 
 sub getstation {
-    my $page = get "http://www.internet-radio.com$genre";
-    loadgenres $page unless %genres;
-    $page =~ /<h2 style=.+>\s*(.+)<\/h2>/;
-    $title = $1;
-    my $doc = parse_html $page;
-    my $i = 0;
-    print "$title\n";
-    my $cols = cols;
-    my $ws = ($cols - 4) / 4;
-    my $wt = ($cols - 4) * 3 / 4;
-    foreach (@{$doc->extract_links()}) {
-        next unless $_->[0] =~ /mount=(.+pls)&title=(.+)&website=http:\/\/(.+)$/;
-        my ($listen, $title, $station) = ($1, $2, $3);
-        $stations[$i] = $listen;
-        printf "%2d %-${ws}.${ws}s %-${wt}.${wt}s\n", $i, $station, $title;
-        $i++;
+    while (1) {
+        my $page = get "http://www.internet-radio.com$genre";
+        loadgenres $page unless %genres;
+        $page =~ /<h2 style=.+>\s*(.+)<\/h2>/;
+        $title = $1;
+        my ($prev, $next);
+        foreach (split(/\n/, $page)) {
+            next unless /<ul id="pagination">/;
+            $prev = $1 if /<a href="([^>]+)">&laquo; previous</;
+            $next = $1 if /<a href="([^>]+)">next &raquo;</;
+            last;
+        }
+        my $doc = parse_html $page;
+        my $i = 0;
+        print "$title\n";
+        my $cols = cols;
+        my $ws = ($cols - 4) / 4;
+        my $wt = ($cols - 4) * 3 / 4;
+        foreach (@{$doc->extract_links()}) {
+            my $l = $_->[0];
+            next unless $l =~ /mount=(.+pls)&title=(.+)&website=http:\/\/(.+)$/;
+            my ($listen, $title, $station) = ($1, $2, $3);
+            $stations[$i] = $listen;
+            printf "%2d %-${ws}.${ws}s %-${wt}.${wt}s\n", $i, $station, $title;
+            $i++;
+        }
+        print "<  previous page\n" if $prev;
+        print ">  next page\n" if $next;
+        my $n;
+        while (1) {
+            if ($i == 0) {
+                return;
+            } elsif ($n eq '<' && $prev) {
+                $genre = $prev;
+                last;
+            } elsif ($n eq '>' && $next) {
+                $genre = $next;
+                last;
+            } elsif ($n =~ /\d+/ && $n >= 0 && $n < $i) {
+                $station_now = $stations[$n];
+                return;
+            } else {
+                print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
+                ($n = <>) =~ s/\n//;
+            }
+        }
     }
-    my $n;
-    while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
-        return if $i == 0;
-        print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
-        $n = <>;
-    }
-    $station_now = $stations[$n];
 }
 
 sub getgenre {
