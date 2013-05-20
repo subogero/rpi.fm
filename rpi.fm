@@ -5,7 +5,7 @@ use HTML::Parse;
 use Term::ANSIColor qw(:constants);
 use integer;
 sub getstation; sub getgenre; sub loadgenres; sub status; sub cols;
-sub myload; sub mysave; sub choosestation; sub player;
+sub mystation; sub myload; sub mysave; sub choosestation; sub player;
 sub help {
     print <<EOF;
 Available commands:
@@ -14,6 +14,7 @@ d	Demonize player	and quit	g	choose Genre
 ?	help				l	List actual stations
 h	play on HDMI output		p	Play/Pause
 j	play on stereo Jack output	s	Show what's playing
+m	My stations
 EOF
 }
 
@@ -51,6 +52,8 @@ while (<>) {
         exit 0;
     } elsif ($cmd eq '?') {
         help;
+    } elsif ($cmd eq 'm') {
+        mystation;
     } elsif ($cmd eq 'f') {
         $genre = '';
         getstation;
@@ -162,6 +165,35 @@ sub status {
 sub cols {
     my ($rows, $cols) = split /[ \n]/, `/bin/stty size`;
     return $cols;
+}
+
+sub mystation {
+    print "My Stations\n";
+    my $cols = cols;
+    my $ws = ($cols - 4) / 4;
+    my $wt = ($cols - 4) * 3 / 4;
+    my $i = 0;
+    foreach (sort { $my{$b}{times} <=> $my{$a}{times} } keys %my) {
+        $stations[$i] = {
+            station => $_,
+            listen => $my{$_}{listen},
+            title => $my{$_}{title}
+        };
+        printf "%2d %-${ws}.${ws}s %-${wt}.${wt}s\n", $i, $_, $my{$_}{title};
+        $i++;
+    }
+    my $n;
+    while (1) {
+        if ($i == 0) {
+            return;
+        } elsif ($n =~ /\d+/ && $n >= 0 && $n < $i) {
+            choosestation $stations[$n];
+            return;
+        } else {
+            print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
+            ($n = <>) =~ s/\n//;
+        }
+    }
 }
 
 sub myload {

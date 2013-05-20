@@ -24,8 +24,10 @@ d	Demonize player	and quit	g	choose Genre
 ?	help				l	List actual stations
 h	play on HDMI output		<n>	choose item <n> from list
 j	play on stereo Jack output	p	Play/Pause
+m	My stations
 
 Files
 -----
 /run/lock/rpi.fm.pid	process ID of the running omxplayer
 ~/.rpi.fm.now		URL and the output device for playback
+~/.rpi.fm		List of My stations
