@@ -4,7 +4,8 @@ use LWP::Simple;
 use HTML::Parse;
 use Term::ANSIColor qw(:constants);
 use integer;
-sub getstation; sub getgenre; sub loadgenres; sub player; sub status; sub cols;
+sub getstation; sub getgenre; sub loadgenres; sub status; sub cols;
+sub myload; sub mysave; sub choosestation; sub player;
 sub help {
     print <<EOF;
 Available commands:
@@ -26,6 +27,7 @@ Welcome to rpi.fm - Type ? for help
 ===================================
 EOF
 
+our %my;
 our @stations;
 our %genres;
 our $genre;
@@ -35,14 +37,17 @@ our $output;
 our $nowfile = "$ENV{HOME}/.rpi.fm.now";
 our $pidfile = '/run/lock/rpi.fm.pid';
 
+myload;
 player;
 print BRIGHT_RED, "rpi.fm> ", RESET;
 while (<>) {
     (my $cmd = $_) =~ s/\r|\n//g;
     if      ($cmd eq 'q') {
         player $cmd;
+        mysave;
         exit 0;
     } elsif ($cmd eq 'd') {
+        mysave;
         exit 0;
     } elsif ($cmd eq '?') {
         help;
@@ -84,7 +89,11 @@ sub getstation {
             my $l = $_->[0];
             next unless $l =~ /mount=(.+pls)&title=(.+)&website=http:\/\/(.+)$/;
             my ($listen, $title, $station) = ($1, $2, $3);
-            $stations[$i] = $listen;
+            $stations[$i] = {
+                station => $station,
+                listen => $listen,
+                title => $title
+            };
             printf "%2d %-${ws}.${ws}s %-${wt}.${wt}s\n", $i, $station, $title;
             $i++;
         }
@@ -101,7 +110,7 @@ sub getstation {
                 $genre = $next;
                 last;
             } elsif ($n =~ /\d+/ && $n >= 0 && $n < $i) {
-                $station_now = $stations[$n];
+                choosestation $stations[$n];
                 return;
             } else {
                 print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
@@ -135,6 +144,58 @@ sub loadgenres {
     foreach (@lines) {
         $genres{$2} = $1 if /<option value="(.+)">(.+)<\/option>/;
     }
+}
+
+sub status {
+    (my $out = $output) =~ s/-o//;
+    if (!$station_now && ! -f $pidfile) {
+        print "Stopped\n";
+    } elsif (!$station_now && -f $pidfile) {
+        print "Another user is listening to rpi.fm\n";
+    } elsif ($station_now && ! -f $pidfile) {
+        print "Paused $station_now on $out\n";
+    } elsif ($station_now && -f $pidfile) {
+        print "Playing $station_now on $out\n";
+    }
+}
+
+sub cols {
+    my ($rows, $cols) = split /[ \n]/, `/bin/stty size`;
+    return $cols;
+}
+
+sub myload {
+    open MY, "$ENV{HOME}/.rpi.fm" or return;
+    while (<MY>) {
+        next unless /^(.+),(\d+),(.+?),(.+)/;
+        $my{$1} = { times => $2, listen => $3, title => $4 };
+    }
+    close MY;
+}
+
+sub mysave {
+    open MY, ">$ENV{HOME}/.rpi.fm" or return;
+    foreach (sort keys %my) {
+        print MY "$_,$my{$_}{times},$my{$_}{listen},$my{$_}{title}\n";
+    }
+    close MY;
+}
+
+sub choosestation {
+    my %choice = %{$_[0]};
+    my $station = $choice{station};
+    if ($my{$station}) {
+        $my{$station}{times}++;
+        $my{$station}{listen} = $choice{listen};
+        $my{$station}{title} = $choice{title};
+    } else {
+        $my{$station} = {
+            times => 1,
+            listen => $choice{listen},
+            title => $choice{title}
+        };
+    }
+    $station_now = $choice{listen};
 }
 
 sub player {
@@ -181,22 +242,4 @@ sub player {
         close STDIN;
         exec '/usr/bin/omxplayer', $output, $file;
     }
-}
-
-sub status {
-    (my $out = $output) =~ s/-o//;
-    if (!$station_now && ! -f $pidfile) {
-        print "Stopped\n";
-    } elsif (!$station_now && -f $pidfile) {
-        print "Another user is listening to rpi.fm\n";
-    } elsif ($station_now && ! -f $pidfile) {
-        print "Paused $station_now on $out\n";
-    } elsif ($station_now && -f $pidfile) {
-        print "Playing $station_now on $out\n";
-    }
-}
-
-sub cols {
-    my ($rows, $cols) = split /[ \n]/, `/bin/stty size`;
-    return $cols;
 }
