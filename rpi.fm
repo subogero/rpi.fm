@@ -90,7 +90,7 @@ sub getstation {
         my $wt = ($cols - 4) * 3 / 4;
         foreach (@{$doc->extract_links()}) {
             my $l = $_->[0];
-            next unless $l =~ /mount=(.+pls)&title=(.+)&website=http:\/\/(.+)$/;
+            next unless $l =~ /mount=(.+\/).+\.pls&title=(.+)&website=http:\/\/(.+)$/;
             my ($listen, $title, $station) = ($1, $2, $3);
             $stations[$i] = {
                 station => $station,
