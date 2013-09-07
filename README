@@ -1,33 +1,59 @@
-rpi.fm - Internet Radio Player for the Raspberry Pi
-===================================================
+rpi.fm(1) - Internet Radio Player for the Raspberry Pi
+======================================================
 
-Command-line internet radio player using the http://www.internet-radio.com
-website and omxplayer for actual playback.
+## DESCRIPTION
 
-Main features include chosing station by genre, automatic resume of playback
-after restart, and demonized playback in the background after quitting.
+Command-line internet radio player using the <http://www.internet-radio.com>
+website and omxd for playback. See <http://github.com/subogero/omxd>.
 
-Installation
-------------
+It's an interactive command-line program. You can chose station by genre;
+rpi.fm builds a statistics of your favourites, and you can chose from those too.
+
+Chosing a station does not start playback automatically,
+as there are many options. See commands I H J i a A below.
+
+## COMMANDS
+
+ ?	help
+
+ q	Radio off and Quit
+ d	leave raDio on and quit
+
+ f	Featured stations list
+ g	choose Genre
+ m	My stations
+ l	Last used list of stations
+
+ I	play now
+ H	play now on HDMI
+ J	play now on Jack
+ i	Insert to omxd playlist at current position and play now
+ a	Add to omxd playlist after current position
+ A	Add to end of omxd playlist
+
+ h	change to HDMI output
+ j	change to stereo Jack output
+ p	Play/Pause
+ s	Show what's playing
+
+## FILES
+
+ ~/.rpi.fm	List of My stations
+
+## INSTALL
+
 rpi.fm was written in Perl and uses the following modules:
 LWP::Simple, HTML::Parse and Term::ANSIColor for that fancy prompt
 (the latter 2 are part of standard Raspbian Wheezy).
 
-apt-get install libwww-perl # as root
-cd rpi.fm
-make install # as root
+Install omxd first: see
+ <https://github.com/subogero/omxd/blob/master/INSTALL>
 
-Available commands
-------------------
-q	Quit				f	Featured stations list
-d	Demonize player	and quit	g	choose Genre
-?	help				l	List actual stations
-h	play on HDMI output		<n>	choose item <n> from list
-j	play on stereo Jack output	p	Play/Pause
-m	My stations
+Then install rpi.fm:
+ sudo apt-get install libwww-perl
+ cd rpi.fm
+ sudo make install
 
-Files
------
-/run/lock/rpi.fm.pid	process ID of the running omxplayer
-~/.rpi.fm.now		URL and the output device for playback
-~/.rpi.fm		List of My stations
+## COPYRIGHT
+
+(c) SZABO Gergely <szg@subogero.com>, WTFPL 2.0

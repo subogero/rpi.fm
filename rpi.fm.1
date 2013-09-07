@@ -1,0 +1,67 @@
+.\" Generated with Ronnjs 0.3.8
+.\" http://github.com/kapouer/ronnjs/
+.
+.TH "RPI\.FM" "1" "September 2013" "" ""
+.
+.SH "NAME"
+\fBrpi.fm\fR \-\- Internet Radio Player for the Raspberry Pi
+.
+.SH "DESCRIPTION"
+Command\-line internet radio player using the \fIhttp://www\.internet\-radio\.com\fR
+website and omxd for playback\. See \fIhttp://github\.com/subogero/omxd\fR\|\.
+.
+.P
+It\'s an interactive command\-line program\. You can chose station by genre;
+rpi\.fm builds a statistics of your favourites, and you can chose from those too\.
+.
+.P
+Chosing a station does not start playback automatically,
+as there are many options\. See commands I H J i a A below\.
+.
+.SH "COMMANDS"
+ ?	help
+.
+.P
+ q	Radio off and Quit
+ d	leave raDio on and quit
+.
+.P
+ f	Featured stations list
+ g	choose Genre
+ m	My stations
+ l	Last used list of stations
+.
+.P
+ I	play now
+ H	play now on HDMI
+ J	play now on Jack
+ i	Insert to omxd playlist at current position and play now
+ a	Add to omxd playlist after current position
+ A	Add to end of omxd playlist
+.
+.P
+ h	change to HDMI output
+ j	change to stereo Jack output
+ p	Play/Pause
+ s	Show what\'s playing
+.
+.SH "FILES"
+ ~/\.rpi\.fm	List of My stations
+.
+.SH "INSTALL"
+rpi\.fm was written in Perl and uses the following modules:
+LWP::Simple, HTML::Parse and Term::ANSIColor for that fancy prompt
+(the latter 2 are part of standard Raspbian Wheezy)\.
+.
+.P
+Install omxd first: see
+ \fIhttps://github\.com/subogero/omxd/blob/master/INSTALL\fR
+.
+.P
+Then install rpi\.fm:
+ sudo apt\-get install libwww\-perl
+ cd rpi\.fm
+ sudo make install
+.
+.SH "COPYRIGHT"
+(c) SZABO Gergely \fIszg@subogero\.com\fR, WTFPL 2\.0
