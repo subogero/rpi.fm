@@ -3,6 +3,7 @@
 use LWP::Simple;
 use HTML::Parse;
 use Term::ANSIColor qw(:constants);
+use POSIX;
 use integer;
 sub getstation; sub getgenre; sub loadgenres; sub cols;
 sub mystation; sub myload; sub mysave; sub choosestation; sub player;
@@ -87,7 +88,7 @@ sub getstation {
         my $doc = parse_html $page;
         my $i = 0;
         print "$title\n";
-        my $cols = cols;
+        my $cols = cols || 80;
         my $ws = ($cols - 4) / 4;
         my $wt = ($cols - 4) * 3 / 4;
         foreach (@{$doc->extract_links()}) {
@@ -128,16 +129,17 @@ sub getstation {
 sub getgenre {
     loadgenres unless %genres;
     my $i = 0;
-    my $width = cols() / 4 - 5;
+    my $columns = cols() / 20 || 1;
     foreach (sort keys %genres) {
-        printf "%3d %-${width}.${width}s ", $i++, $_;
-        print "\n" if $i % 4 == 0;
+        printf "%3d %-15.15s ", $i++, $_;
+        print "\n" if $i % $columns == 0;
     }
-    print "\n" if $i % 4 != 0;
+    print "\n" if $i % $columns != 0;
     my $n;
     while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
         print BRIGHT_RED, "rpi.fm Choose genre> ", RESET;
         $n = <>;
+        return if $n eq '';
     }
     my $key = (sort keys %genres)[$n];
     $genre =  $genres{$key};
@@ -152,13 +154,14 @@ sub loadgenres {
 }
 
 sub cols {
+    return 0 unless POSIX::isatty STDIN;
     my ($rows, $cols) = split /[ \n]/, `/bin/stty size`;
     return $cols;
 }
 
 sub mystation {
     print "My Stations\n";
-    my $cols = cols;
+    my $cols = cols || 80;
     my $ws = ($cols - 4) / 4;
     my $wt = ($cols - 4) * 3 / 4;
     my $i = 0;
