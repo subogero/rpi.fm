@@ -69,7 +69,7 @@ while (<>) {
     } elsif ($cmd eq 's') {
         player 'S';
     }
-    print BRIGHT_RED, "rpi.fm> ", RESET;
+    print STDERR BRIGHT_RED, "rpi.fm> ", RESET;
 }
 
 sub getstation {
@@ -119,7 +119,7 @@ sub getstation {
                 choosestation $stations[$n];
                 return;
             } else {
-                print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
+                print STDERR BRIGHT_RED, "rpi.fm Choose station> ", RESET;
                 $n = <>;
                 exit 0 if $n eq '';
                 $n =~ s/\n//;
@@ -139,7 +139,7 @@ sub getgenre {
     print "\n" if $i % $columns != 0;
     my $n;
     while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
-        print BRIGHT_RED, "rpi.fm Choose genre> ", RESET;
+        print STDERR BRIGHT_RED, "rpi.fm Choose genre> ", RESET;
         $n = <>;
         exit 0 if $n eq '';
     }
@@ -184,7 +184,7 @@ sub mystation {
             choosestation $stations[$n];
             return;
         } else {
-            print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
+            print STDERR BRIGHT_RED, "rpi.fm Choose station> ", RESET;
             $n = <>;
             exit 0 if $n eq '';
             $n =~ s/\n//;
