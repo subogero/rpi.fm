@@ -120,7 +120,9 @@ sub getstation {
                 return;
             } else {
                 print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
-                ($n = <>) =~ s/\n//;
+                $n = <>;
+                exit 0 if $n eq '';
+                $n =~ s/\n//;
             }
         }
     }
@@ -139,7 +141,7 @@ sub getgenre {
     while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
         print BRIGHT_RED, "rpi.fm Choose genre> ", RESET;
         $n = <>;
-        return if $n eq '';
+        exit 0 if $n eq '';
     }
     my $key = (sort keys %genres)[$n];
     $genre =  $genres{$key};
@@ -183,7 +185,9 @@ sub mystation {
             return;
         } else {
             print BRIGHT_RED, "rpi.fm Choose station> ", RESET;
-            ($n = <>) =~ s/\n//;
+            $n = <>;
+            exit 0 if $n eq '';
+            $n =~ s/\n//;
         }
     }
 }
