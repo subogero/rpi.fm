@@ -4,6 +4,7 @@ use LWP::Simple;
 use HTML::Parse;
 use Term::ANSIColor qw(:constants);
 use POSIX;
+use Data::Dumper;
 use integer;
 sub getstation; sub getgenre; sub loadgenres; sub cols;
 sub mystation; sub myload; sub mysave; sub choosestation; sub player;
@@ -194,18 +195,30 @@ sub mystation {
 
 sub myload {
     open MY, "$ENV{HOME}/.rpi.fm" or return;
+    my @lines;
     while (<MY>) {
-        next unless /^(.+),(\d+),(.+?),(.+)/;
-        $my{$1} = { times => $2, listen => $3, title => $4 };
+        push @lines, $_;
     }
     close MY;
+    (my $cfg = join "", @lines) =~ s/\n//g;
+    # New Dumper format config?
+    if ($cfg =~ /^\$VAR1 = {[^;]+};$/) {
+        eval $cfg;
+        %my = %{$VAR1->{MyStations}};
+    }
+    # Old CSV format config
+    else {
+        foreach (@lines) {
+            next unless /^(.+),(\d+),(.+?),(.+)/;
+            $my{$1} = { times => $2, listen => $3, title => $4 };
+        }
+    }
 }
 
 sub mysave {
     open MY, ">$ENV{HOME}/.rpi.fm" or return;
-    foreach (sort keys %my) {
-        print MY "$_,$my{$_}{times},$my{$_}{listen},$my{$_}{title}\n";
-    }
+    $Data::Dumper::Indent = 1;
+    print MY Dumper({ MyStations => \%my });
     close MY;
 }
 
