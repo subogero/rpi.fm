@@ -89,9 +89,11 @@ sub getstation {
         my $doc = parse_html $page;
         my $i = 0;
         print "$title\n";
-        my $cols = cols || 80;
+        my $cols = cols;
         my $ws = ($cols - 4) / 4;
+        my $wsf = $cols ? "%-${ws}.${ws}s" : "%s";
         my $wt = ($cols - 4) * 3 / 4;
+        my $wtf = $cols ? "%-${wt}.${wt}s" : "%s";
         foreach (@{$doc->extract_links()}) {
             my $l = $_->[0];
             next unless $l =~ /mount=(.+\/).+\.pls&title=(.+)&website=http:\/\/(.+)$/;
@@ -101,7 +103,7 @@ sub getstation {
                 listen => $listen,
                 title => $title
             };
-            printf "%2d %-${ws}.${ws}s %-${wt}.${wt}s\n", $i, $station, $title;
+            printf "%2d ${wsf} ${wtf}\n", $i, $station, $title;
             $i++;
         }
         print "<  previous page\n" if $prev;
@@ -164,9 +166,11 @@ sub cols {
 
 sub mystation {
     print "My Stations\n";
-    my $cols = cols || 80;
+    my $cols = cols;
     my $ws = ($cols - 4) / 4;
+    my $wsf = $cols ? "%-${ws}.${ws}s" : "%s";
     my $wt = ($cols - 4) * 3 / 4;
+    my $wtf = $cols ? "%-${wt}.${wt}s" : "%s";
     my $i = 0;
     foreach (sort { $my{$b}{times} <=> $my{$a}{times} } keys %my) {
         $stations[$i] = {
@@ -174,7 +178,7 @@ sub mystation {
             listen => $my{$_}{listen},
             title => $my{$_}{title}
         };
-        printf "%2d %-${ws}.${ws}s %-${wt}.${wt}s\n", $i, $_, $my{$_}{title};
+        printf "%2d ${wsf} ${wtf}\n", $i, $_, $my{$_}{title};
         $i++;
     }
     my $n;
