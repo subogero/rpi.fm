@@ -28,7 +28,7 @@ if ($ARGV[0] =~ /-h/) {
     exit 0;
 }
 
-print <<EOF;
+print STDERR <<EOF;
 Welcome to rpi.fm - Type ? for help
 ===================================
 EOF
@@ -41,7 +41,7 @@ our $title;
 our $station_now;
 
 myload;
-print BRIGHT_RED, "rpi.fm> ", RESET;
+print STDERR BRIGHT_RED, "rpi.fm> ", RESET;
 while (<>) {
     (my $cmd = $_) =~ s/\r|\n//g;
     if      ($cmd eq 'q') {
