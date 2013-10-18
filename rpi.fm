@@ -135,8 +135,9 @@ sub getgenre {
     loadgenres unless %genres;
     my $i = 0;
     my $columns = cols() / 20 || 1;
+    my $format = $columns == 1 ? "%s" : "%-15.15s";
     foreach (sort keys %genres) {
-        printf "%3d %-15.15s ", $i++, $_;
+        printf "%3d $format ", $i++, $_;
         print "\n" if $i % $columns == 0;
     }
     print "\n" if $i % $columns != 0;
