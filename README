@@ -42,15 +42,14 @@ as there are many options. See commands I H J i a A below.
 
 ## INSTALL
 
-rpi.fm was written in Perl and uses the following modules:
-LWP::Simple, HTML::Parse and Term::ANSIColor for that fancy prompt
-(the latter 2 are part of standard Raspbian Wheezy).
+rpi.fm was written in Perl, uses curl and the following modules:
+HTML::Parse, POSIX and Term::ANSIColor for that fancy prompt.
 
 Install omxd first: see
  <https://github.com/subogero/omxd/blob/master/INSTALL>
 
 Then install rpi.fm:
- sudo apt-get install libwww-perl
+ sudo apt-get install curl
  cd rpi.fm
  sudo make install
 
