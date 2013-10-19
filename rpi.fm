@@ -2,7 +2,6 @@
 # Copyright: SZABO Gergely <szg@subogero.com>, GNU GPL v2
 use HTML::Parse;
 use Term::ANSIColor qw(:constants);
-use POSIX;
 use Data::Dumper;
 use integer;
 sub getstation; sub getgenre; sub loadgenres; sub cols;
@@ -159,7 +158,7 @@ sub loadgenres {
 }
 
 sub cols {
-    return 0 unless POSIX::isatty STDIN;
+    return 0 if system "/bin/test", "-t", "0";
     my ($rows, $cols) = split /[ \n]/, `/bin/stty size`;
     return $cols;
 }
