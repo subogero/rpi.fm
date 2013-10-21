@@ -79,7 +79,7 @@ sub getstation {
         @stations = ();
         my ($prev, $next);
         foreach (split(/\n/, $page)) {
-            if (m|href="/player/\?mount=(.+?/).+\.pls&amp;title=(.+?)&amp;website=http://(.+?)">|) {
+            if (m|href="/player/\?mount=(.+/).+?\.pls&amp;title=(.+?)&amp;website=http://(.+?)">|) {
                 push @stations, { listen => $1, title => $2, station => $3 };
             }
             next unless /<ul id="pagination">/;
