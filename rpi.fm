@@ -36,6 +36,7 @@ our %genres;
 our $genre;
 our $title;
 our $station_now;
+our $cols = cols;
 
 myload;
 print STDERR BRIGHT_RED, "rpi.fm> ", RESET;
@@ -87,7 +88,6 @@ sub getstation {
         my $doc = parse_html $page;
         my $i = 0;
         print "$title\n";
-        my $cols = cols;
         my $ws = ($cols - 4) / 4;
         my $wsf = $cols ? "%-${ws}.${ws}s" : "%s";
         my $wt = ($cols - 4) * 3 / 4;
@@ -132,7 +132,7 @@ sub getstation {
 sub getgenre {
     loadgenres unless %genres;
     my $i = 0;
-    my $columns = cols() / 20 || 1;
+    my $columns = $cols / 20 || 1;
     my $format = $columns == 1 ? "%s" : "%-15.15s";
     foreach (sort keys %genres) {
         printf "%3d $format ", $i++, $_;
@@ -158,14 +158,13 @@ sub loadgenres {
 }
 
 sub cols {
-    return 0 if system "/bin/test", "-t", "0";
+    return 0 if system "test", "-t", "0";
     my ($rows, $cols) = split /[ \n]/, `/bin/stty size`;
     return $cols;
 }
 
 sub mystation {
     print "My Stations\n";
-    my $cols = cols;
     my $ws = ($cols - 4) / 4;
     my $wsf = $cols ? "%-${ws}.${ws}s" : "%s";
     my $wt = ($cols - 4) * 3 / 4;
