@@ -144,7 +144,8 @@ sub getgenre {
 }
 
 sub loadgenres {
-    my @lines = split /\n/, $_[0] || `curl http://www.internet-radio.com 2>/dev/null`;
+    my $page = shift;
+    my @lines = split /\n/, $page || `curl http://www.internet-radio.com 2>/dev/null`;
     foreach (@lines) {
         $genres{$2} = $1 if /<option value="(.+)">(.+)<\/option>/;
     }
@@ -201,6 +202,7 @@ sub myload {
     if ($cfg =~ /^\$VAR1 = {[^;]+};$/) {
         eval $cfg;
         %my = %{$VAR1->{MyStations}};
+        %genres = %{$VAR1->{Genres}};
     }
     # Old CSV format config
     else {
@@ -212,10 +214,13 @@ sub myload {
 }
 
 sub mysave {
-    open MY, ">$ENV{HOME}/.rpi.fm" or return;
-    $Data::Dumper::Indent = 1;
-    print MY Dumper({ MyStations => \%my });
-    close MY;
+    if (fork == 0) {
+        loadgenres;
+        open MY, ">$ENV{HOME}/.rpi.fm" or return;
+        $Data::Dumper::Indent = 1;
+        print MY Dumper({ MyStations => \%my, Genres => \%genres });
+        close MY;
+    }
     exit 0;
 }
 
