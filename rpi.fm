@@ -73,13 +73,14 @@ sub getstation {
     while (1) {
         (my $gnr = $genre) =~ s/ /%20/g;
         my $page = `curl http://www.internet-radio.com$gnr 2>/dev/null`;
+        $page =~ s/&amp;/&/g;
         loadgenres $page unless %genres;
         $page =~ /<h2 style=.+>\s*(.+)<\/h2>/;
         $title = $1;
         @stations = ();
         my ($prev, $next);
         foreach (split(/\n/, $page)) {
-            if (m|href="/player/\?mount=(.+/).+?\.pls&amp;title=(.+?)&amp;website=http://(.+?)">|) {
+            if (m|href="/player/\?mount=(.+/).+?\.pls&title=(.+?)&website=http://(.+?)">|) {
                 push @stations, { listen => $1, title => $2, station => $3 };
             }
             next unless /<ul id="pagination">/;
