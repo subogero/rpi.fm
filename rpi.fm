@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 # Copyright: SZABO Gergely <szg@subogero.com>, GNU GPL v2
-use HTML::Parse;
 use Term::ANSIColor qw(:constants);
 use Data::Dumper;
 use integer;
@@ -78,30 +77,25 @@ sub getstation {
         loadgenres $page unless %genres;
         $page =~ /<h2 style=.+>\s*(.+)<\/h2>/;
         $title = $1;
+        @stations = ();
         my ($prev, $next);
         foreach (split(/\n/, $page)) {
+            if (m|href="/player/\?mount=(.+?/).+\.pls&amp;title=(.+?)&amp;website=http://(.+?)">|) {
+                push @stations, { listen => $1, title => $2, station => $3 };
+            }
             next unless /<ul id="pagination">/;
             $prev = $1 if /<a href="([^>]+)">&laquo; previous</;
             $next = $1 if /<a href="([^>]+)">next &raquo;</;
             last;
         }
-        my $doc = parse_html $page;
         my $i = 0;
         print "$title\n";
         my $ws = ($cols - 4) / 4;
         my $wsf = $cols ? "%-${ws}.${ws}s" : "%s";
         my $wt = ($cols - 4) * 3 / 4;
         my $wtf = $cols ? "%-${wt}.${wt}s" : "%s";
-        foreach (@{$doc->extract_links()}) {
-            my $l = $_->[0];
-            next unless $l =~ /mount=(.+\/).+\.pls&title=(.+)&website=http:\/\/(.+)$/;
-            my ($listen, $title, $station) = ($1, $2, $3);
-            $stations[$i] = {
-                station => $station,
-                listen => $listen,
-                title => $title
-            };
-            printf "%2d ${wsf} ${wtf}\n", $i, $station, $title;
+        foreach (@stations) {
+            printf "%2d ${wsf} ${wtf}\n", $i, $_->{station}, $_->{title};
             $i++;
         }
         print "<  previous page\n" if $prev;
@@ -169,6 +163,7 @@ sub mystation {
     my $wsf = $cols ? "%-${ws}.${ws}s" : "%s";
     my $wt = ($cols - 4) * 3 / 4;
     my $wtf = $cols ? "%-${wt}.${wt}s" : "%s";
+    @stations = ();
     my $i = 0;
     foreach (sort { $my{$b}{times} <=> $my{$a}{times} } keys %my) {
         $stations[$i] = {

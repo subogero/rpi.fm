@@ -42,8 +42,8 @@ as there are many options. See commands I H J i a A below.
 
 ## INSTALL
 
-rpi.fm was written in Perl, uses curl and the following modules:
-HTML::Parse, POSIX and Term::ANSIColor for that fancy prompt.
+rpi.fm was written in Perl, uses curl, stty and the following modules:
+Data::Dumper for the config file and Term::ANSIColor for that fancy prompt.
 
 Install omxd first: see
  <https://github.com/subogero/omxd/blob/master/INSTALL>
