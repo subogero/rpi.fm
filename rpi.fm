@@ -45,10 +45,8 @@ while (<>) {
         my $state = `omxd S`;
         player 'p' if $state =~ /Playing/;
         mysave;
-        exit 0;
     } elsif ($cmd eq 'd') {
         mysave;
-        exit 0;
     } elsif ($cmd eq '?') {
         help;
     } elsif ($cmd eq 'm') {
@@ -69,6 +67,7 @@ while (<>) {
     }
     print STDERR BRIGHT_RED, "rpi.fm> ", RESET;
 }
+mysave;
 
 sub getstation {
     while (1) {
@@ -116,7 +115,7 @@ sub getstation {
             } else {
                 print STDERR BRIGHT_RED, "rpi.fm Choose station> ", RESET;
                 $n = <>;
-                exit 0 if $n eq '';
+                mysave if $n eq '';
                 $n =~ s/\n//;
             }
         }
@@ -137,7 +136,7 @@ sub getgenre {
     while ($n !~ /\d+/ || $n < 0 || $n >= $i) {
         print STDERR BRIGHT_RED, "rpi.fm Choose genre> ", RESET;
         $n = <>;
-        exit 0 if $n eq '';
+        mysave if $n eq '';
     }
     my $key = (sort keys %genres)[$n];
     $genre =  $genres{$key};
@@ -217,6 +216,7 @@ sub mysave {
     $Data::Dumper::Indent = 1;
     print MY Dumper({ MyStations => \%my });
     close MY;
+    exit 0;
 }
 
 sub choosestation {

@@ -17,7 +17,7 @@ as there are many options. See commands I H J i a A below.
  ?	help
 
  q	Radio off and Quit
- d	leave raDio on and quit
+ d	leave raDio on and quit, same as Ctrl-D (EOF)
 
  f	Featured stations list
  g	choose Genre
