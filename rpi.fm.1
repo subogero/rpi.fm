@@ -1,7 +1,7 @@
 .\" Generated with Ronnjs 0.3.8
 .\" http://github.com/kapouer/ronnjs/
 .
-.TH "RPI\.FM" "1" "September 2013" "" ""
+.TH "RPI\.FM" "1" "October 2013" "" ""
 .
 .SH "NAME"
 \fBrpi.fm\fR \-\- Internet Radio Player for the Raspberry Pi
@@ -49,9 +49,8 @@ as there are many options\. See commands I H J i a A below\.
  ~/\.rpi\.fm	List of My stations
 .
 .SH "INSTALL"
-rpi\.fm was written in Perl and uses the following modules:
-LWP::Simple, HTML::Parse and Term::ANSIColor for that fancy prompt
-(the latter 2 are part of standard Raspbian Wheezy)\.
+rpi\.fm was written in Perl, uses curl, stty and the following modules:
+Data::Dumper for the config file and Term::ANSIColor for that fancy prompt\.
 .
 .P
 Install omxd first: see
@@ -59,7 +58,7 @@ Install omxd first: see
 .
 .P
 Then install rpi\.fm:
- sudo apt\-get install libwww\-perl
+ sudo apt\-get install curl
  cd rpi\.fm
  sudo make install
 .
