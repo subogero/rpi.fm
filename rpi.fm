@@ -5,6 +5,7 @@ use Data::Dumper;
 use integer;
 sub getstation; sub getgenre; sub loadgenres; sub cols;
 sub mystation; sub myload; sub mysave; sub choosestation; sub player;
+sub logger;
 sub help {
     print <<EOF;
 Available commands:
@@ -80,7 +81,7 @@ sub getstation {
         @stations = ();
         my ($prev, $next);
         foreach (split(/\n/, $page)) {
-            if (m|href="/player/\?mount=(.+/).+?\.pls&title=(.+?)&website=http://(.+?)">|) {
+            if (m|href="/player/\?mount=(.+/).+?pls&title=(.+?)&website=http://(.+?)">|) {
                 push @stations, { listen => $1, title => $2, station => $3 };
             }
             next unless /<ul id="pagination">/;
@@ -215,13 +216,12 @@ sub myload {
 }
 
 sub mysave {
-    if (fork == 0) {
-        loadgenres;
-        open MY, ">$ENV{HOME}/.rpi.fm" or return;
-        $Data::Dumper::Indent = 1;
-        print MY Dumper({ MyStations => \%my, Genres => \%genres });
-        close MY;
-    }
+    loadgenres;
+    my $cfgfile = $ENV{HOME} ? "$ENV{HOME}/.rpi.fm" : ".rpi.fm";
+    open MY, ">$cfgfile" or die;
+    $Data::Dumper::Indent = 1;
+    print MY Dumper({ MyStations => \%my, Genres => \%genres });
+    close MY;
     exit 0;
 }
 
@@ -245,4 +245,11 @@ sub choosestation {
 sub player {
     return unless $_[0]; # Don't start another daemon for heaven's sake!
     system "omxd", @_;
+}
+
+sub logger {
+    open LOG, ">>rpi.fm.log" or return;
+    my $msg = shift;
+    print LOG time(), " PID:$$ ", $msg, "\n";
+    close LOG;
 }
