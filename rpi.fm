@@ -241,6 +241,7 @@ sub choosestation {
         };
     }
     $station_now = $choice{listen};
+    print "You chose $station\n";
 }
 
 sub player {
