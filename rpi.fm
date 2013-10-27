@@ -37,6 +37,7 @@ our $genre;
 our $title;
 our $station_now;
 our $cols = cols;
+our $cfgfile = $ENV{HOME} ? "$ENV{HOME}/.rpi.fm" : ".rpi.fm";
 
 myload;
 print STDERR BRIGHT_RED, "rpi.fm> ", RESET;
@@ -193,7 +194,7 @@ sub mystation {
 }
 
 sub myload {
-    open MY, "$ENV{HOME}/.rpi.fm" or return;
+    open MY, $cfgfile or return;
     my @lines;
     while (<MY>) {
         push @lines, $_;
@@ -217,7 +218,6 @@ sub myload {
 
 sub mysave {
     loadgenres;
-    my $cfgfile = $ENV{HOME} ? "$ENV{HOME}/.rpi.fm" : ".rpi.fm";
     open MY, ">$cfgfile" or die;
     $Data::Dumper::Indent = 1;
     print MY Dumper({ MyStations => \%my, Genres => \%genres });
