@@ -222,6 +222,7 @@ sub mysave {
     $Data::Dumper::Indent = 1;
     print MY Dumper({ MyStations => \%my, Genres => \%genres });
     close MY;
+    print STDERR "\n";
     exit 0;
 }
 
