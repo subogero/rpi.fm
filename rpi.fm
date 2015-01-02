@@ -25,6 +25,15 @@ if ($ARGV[0] =~ /-h/) {
     help;
     exit 0;
 }
+if ($ARGV[0] eq '--version') {
+    print <<EOF;
+rpi.fm 0.1
+
+Free software, distributed under the GNU GPL v2 license
+Copyright 2012-2014 SZABO Gergely <szg@subogero.com>
+EOF
+    exit 0;
+}
 print STDERR <<EOF;
 Welcome to rpi.fm - Type ? for help
 ===================================
