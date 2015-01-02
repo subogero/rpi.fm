@@ -27,10 +27,10 @@ if ($ARGV[0] =~ /-h/) {
 }
 if ($ARGV[0] eq '--version') {
     print <<EOF;
-rpi.fm 0.1
+rpi.fm 1.0
 
 Free software, distributed under the GNU GPL v2 license
-Copyright 2012-2014 SZABO Gergely <szg@subogero.com>
+Copyright 2012-2015 SZABO Gergely <szg@subogero.com>
 EOF
     exit 0;
 }
