@@ -86,12 +86,11 @@ sub getstation {
         my $page = `curl http://www.internet-radio.com$gnr 2>/dev/null`;
         $page =~ s/&amp;/&/g;
         loadgenres $page unless %genres;
-        $page =~ /<h2 style=.+>\s*(.+)<\/h2>/;
-        $title = $1;
+        ($title = $genre) =~ s|/stations/(.+)/|Listen to $1|;
         @stations = ();
         my ($prev, $next);
         foreach (split(/\n/, $page)) {
-            if (m|href="/player/\?mount=(.+/).+?pls&title=(.+?)&website=http://(.+?)">|) {
+            if (m|'/player/\?mount=(.+/).+?pls&title=(.+?)&website=http://(.+?)',|) {
                 push @stations, { listen => $1, title => $2, station => $3 };
             }
             next unless /<ul id="pagination">/;
@@ -157,9 +156,10 @@ sub getgenre {
 
 sub loadgenres {
     my $page = shift;
-    my @lines = split /\n/, $page || `curl http://www.internet-radio.com 2>/dev/null`;
+    my @lines = split /\n/, $page || `curl http://www.internet-radio.com/stations/ 2>/dev/null`;
+    %genres = ();
     foreach (@lines) {
-        $genres{$2} = $1 if /<option value="(.+)">(.+)<\/option>/;
+        $genres{$2} = $1 if /href="(.+)">([a-z0-9 ]+)<\/a>/;
     }
 }
 
