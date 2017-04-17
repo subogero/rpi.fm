@@ -83,7 +83,7 @@ mysave;
 sub getstation {
     while (1) {
         (my $gnr = $genre) =~ s/ /%20/g;
-        my $page = `curl http://www.internet-radio.com$gnr 2>/dev/null`;
+        my $page = `curl https://www.internet-radio.com$gnr 2>/dev/null`;
         $page =~ s/&amp;/&/g;
         loadgenres $page unless %genres;
         ($title = $genre) =~ s|/stations/(.+)/|Listen to $1|;
@@ -156,7 +156,7 @@ sub getgenre {
 
 sub loadgenres {
     my $page = shift;
-    my @lines = split /\n/, $page || `curl http://www.internet-radio.com/stations/ 2>/dev/null`;
+    my @lines = split /\n/, $page || `curl https://www.internet-radio.com/stations/ 2>/dev/null`;
     %genres = ();
     foreach (@lines) {
         $genres{$2} = $1 if /href="(.+)">([a-z0-9 ]+)<\/a>/;
